@@ -1,4 +1,4 @@
-import pymysql
+import mysql.connector
 from datetime import datetime
 from fastapi import FASTAPI
 MYSQL_HOST = 'localhost'
@@ -31,10 +31,32 @@ def get_categories() -> list[dict]:
     conn.close()
     return result
 
-
+@app.get("/get_product/{category_id}")
 def get_products(category_id: int) -> list[dict]:
     # if category_id = -1, return all products.
-    return
+    conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
+    my_cursor=conn.cursor()
+    my_cursor.execute("SELECT * FROM product")
+    records=my_cursor.fetchall()
+    table_name='product'
+    my_cursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}'")
+    column_names = my_cursor.fetchall()
+    column_names = [col[0] for col in column_names]
+    l=[]
+    if (category_id==-1):
+        for i in records:
+            d={}
+            for j in range(len(column_names)):
+                d[column_names[j]]=i[j]
+            l.append(d)
+    else:
+        for i in records:
+            if (i[6]==category_id):
+                d={}
+                for j in range(len(column_names)):
+                    d[column_names[j]]=i[j]
+                l.append(d)
+    return l
 @app.get("/show_product/{product_id}") 
 def get_product(product_id: int) -> dict:
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
@@ -102,7 +124,7 @@ def get_cart(username: str) -> list[dict]:
     conn.close()
     return l
 
-def add_to_cart(username: str, product_id: int) -> bool:
+def add_to_cart(username: str, product_id: int,quantity:int) -> bool:
     return
 
 def call_for_trial(username: str, product_ids: list[int]) -> bool:
