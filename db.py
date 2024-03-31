@@ -170,7 +170,7 @@ def call_for_trial(username: str, product_ids: list[int]) -> bool:
     return True
 
 def get_trial_history(username: str) -> list[]:
-    conn=mysql.connector.connect(host='localhost',username='root',password='Weebly#123',database='mydb')
+    conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
     my_cursor.execute("SELECT * FROM trial_history WHERE Phone_Number=%s",(username,))
     record=my_cursor.fetchall()
@@ -184,6 +184,16 @@ def search_product(prompt: str) -> list[dict]:
     return
 
 def get_order_history(username: str) -> list[dict]:
+    conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
+    my_cursor=conn.cursor()
+    query = "SELECT * FROM order_history WHERE PHONE_NUMBER = %s"
+    my_cursor.execute(query, (username,))
+    order_history = my_cursor.fetchall()
+    my_cursor.close()
+    conn.close()
+
+    return order_history
+
     return
 
 def checkout(username: str) -> bool:
