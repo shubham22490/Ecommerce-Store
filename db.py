@@ -125,7 +125,31 @@ def get_cart(username: str) -> list[dict]:
     return l
 
 def add_to_cart(username: str, product_id: int,quantity:int) -> bool:
-    return
+    
+    conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)my_cursor=conn.cursor()
+    my_cursor.execute("SELECT * FROM customer WHERE PHONE_NUMBER=%s",(username,))
+    cart_id=-1
+    record=my_cursor.fetchall()
+    for i in record:
+        cart_id=i[9]
+    if (cart_id==-1):print("FUCK YOU NIGGA");return False
+    my_cursor.execute("SELECT * FROM cart where Cart_Id=%s",(cart_id,))
+    records=my_cursor.fetchall()
+    for i in records:
+        if (i[2]==product_id):
+            my_cursor.execute("UPDATE cart SET Quantity=Quantity+%s Where product_id=%s",(quantity,product_id,))
+            return True
+
+            
+    query="INSERT INTO cart(`Quantity`,`Cart_Id`,`product_id`) VALUES (%s,%s,%s)"
+    values=(quantity,cart_id,product_id)
+    my_cursor.execute(query,values)
+    conn.commit()
+    my_cursor.execute("SELECT * FROM cart where Cart_Id=%s",(cart_id,))
+    records=my_cursor.fetchall()
+    conn.close()
+
+    return True
 
 def call_for_trial(username: str, product_ids: list[int]) -> bool:
     return
@@ -172,7 +196,7 @@ def register_user(data: dict) -> bool:
     query="INSERT INTO `mydb`.`Customer` (`Phone Number`,`User Password`,`Email`, `Sex`, `DOB`, `Name`, `Subscription_ID`, `Age`,`Cart_quantity`, `Cart_Id`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
     values=(data['phone_number'],data['password'],data['email'],data['sex'],data['DOB'],data['Name'],data['subscription_id'],age,data['cart_quantity'],data['cart_id'])
     my_cursor.execute(query,values)
-    my_cursor.commit()
+    conn.commit()
     conn.close()
     return True
 
