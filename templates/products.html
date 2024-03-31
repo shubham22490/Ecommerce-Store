@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Products</title>
+  <style>
+    .product-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    .product-item {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      width: 30%;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Products</h1>
+  <div class="product-list">
+    {% for product in products %}
+    <a href="/product/{{ product.ID }}">
+      <div class="product-item">
+        <h3>{{ product.Name }}</h3>
+        <p>Price: ${{ product.Price }}</p>
+        <p>Quantity: {{ product.Quantity }}</p>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</body>
+</html>

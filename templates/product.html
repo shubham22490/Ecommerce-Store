@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ product.Name }}</title>
+</head>
+<body>
+  <h1>{{ product.Name }}</h1>
+  <div class="product-details">
+    <p>Price: ${{ product.Price }}</p>
+    <img src="{{ product.image_url }}" alt="{{ product.name }} image">
+  </div>
+  <div>
+    <h2>Description</h2>
+    <p>{{ product.Description }}</p>
+  </div>
+  <form action="/add-to-cart" method="post">
+    <input type="hidden" name="product_id" value="{{ product.ID }}">  <label for="quantity">Quantity:</label>
+    <input type="number" id="quantity" name="quantity" min="1" value="1">
+    <br>
+    <button type="submit">Buy Now</button>
+    <button type="submit" formaction="/add-to-cart?action=add">Add to Cart</button>
+  </form>
+</body>
+</html>

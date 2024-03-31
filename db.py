@@ -33,9 +33,9 @@ def get_products(category_id: int) -> list[dict]:
     # if category_id = -1, return all products.
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
-    my_cursor.execute("SELECT * FROM product")
+    table_name = "Product"
+    my_cursor.execute(f"SELECT * FROM {table_name}")
     records=my_cursor.fetchall()
-    table_name='product'
     my_cursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}'")
     column_names = my_cursor.fetchall()
     column_names = [col[0] for col in column_names]
@@ -59,7 +59,7 @@ def get_products(category_id: int) -> list[dict]:
 def get_product(product_id: int) -> dict:
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
-    table_name='product'
+    table_name='Product'
     my_cursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}'")
     column_names = my_cursor.fetchall()
     column_names = [col[0] for col in column_names]
@@ -97,12 +97,13 @@ def get_user_details(username: str) -> dict:
 
 
 def get_cart(username: str) -> list[dict]:
+    conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
-    table_name = 'cart'  
+    table_name = 'Cart'  
     my_cursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}'")
     column_names = my_cursor.fetchall()
     column_names = [col[0] for col in column_names]
-    my_cursor.execute("SELECT * FROM customer WHERE Phone_Number=%s", (username,))
+    my_cursor.execute("SELECT * FROM Customer WHERE Phone_Number=%s", (username,))
 
     record=my_cursor.fetchall()
     cart_id=-1
@@ -111,7 +112,7 @@ def get_cart(username: str) -> list[dict]:
         cart_id=i[9]
     if cart_id==-1:
         return [-1]
-    my_cursor.execute("SELECT * FROM cart")
+    my_cursor.execute("SELECT * FROM Cart")
     record_=my_cursor.fetchall()
     l=[]
     for i in record_:
@@ -127,25 +128,27 @@ def add_to_cart(username: str, product_id: int,quantity:int) -> bool:
     
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
-    my_cursor.execute("SELECT * FROM customer WHERE PHONE_NUMBER=%s",(username,))
+    print(username)
+    my_cursor.execute("SELECT * FROM Customer WHERE Phone_Number=%s",(username,))
     cart_id=-1
     record=my_cursor.fetchall()
+    print(record)
     for i in record:
         cart_id=i[9]
     if (cart_id==-1):return False
-    my_cursor.execute("SELECT * FROM cart where Cart_Id=%s",(cart_id,))
+    my_cursor.execute("SELECT * FROM Cart where Cart_Id=%s",(cart_id,))
     records=my_cursor.fetchall()
     for i in records:
-        if (i[2]==product_id):
-            my_cursor.execute("UPDATE cart SET Quantity=Quantity+%s Where product_id=%s",(quantity,product_id,))
+        if (i[2] == product_id):
+            my_cursor.execute("UPDATE Cart SET Quantity=Quantity+%s Where Product_ID=%s",(quantity,product_id,))
             return True
 
             
-    query="INSERT INTO cart(`Quantity`,`Cart_Id`,`product_id`) VALUES (%s,%s,%s)"
+    query="INSERT INTO Cart(`Quantity`,`Cart_Id`,`Product_ID`) VALUES (%s,%s,%s)"
     values=(quantity,cart_id,product_id)
     my_cursor.execute(query,values)
     conn.commit()
-    my_cursor.execute("SELECT * FROM cart where Cart_Id=%s",(cart_id,))
+    my_cursor.execute("SELECT * FROM Cart where Cart_Id=%s",(cart_id,))
     records=my_cursor.fetchall()
     conn.close()
 
@@ -169,7 +172,7 @@ def call_for_trial(username: str, product_ids: list[int]) -> bool:
         conn.commit()
     return True
 
-def get_trial_history(username: str) -> list[]:
+def get_trial_history(username: str) -> list[dict]:
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
     my_cursor.execute("SELECT * FROM trial_history WHERE Phone_Number=%s",(username,))
@@ -193,8 +196,6 @@ def get_order_history(username: str) -> list[dict]:
     conn.close()
 
     return order_history
-
-    return
 
 def checkout(username: str) -> bool:
     return
