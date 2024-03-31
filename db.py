@@ -132,7 +132,7 @@ def add_to_cart(username: str, product_id: int,quantity:int) -> bool:
     record=my_cursor.fetchall()
     for i in record:
         cart_id=i[9]
-    if (cart_id==-1):print("FUCK YOU NIGGA");return False
+    if (cart_id==-1):return False
     my_cursor.execute("SELECT * FROM cart where Cart_Id=%s",(cart_id,))
     records=my_cursor.fetchall()
     for i in records:
