@@ -1,4 +1,34 @@
-// code for cart
+-- code for product category
+-- Populate `Product Category` table
+INSERT INTO `mydb`.`Product_Category` (`Name`)
+VALUES
+('Electronics'),
+('Clothing'),
+('Books'),
+('Furniture'),
+('Toys'),
+('Home Appliances'),
+('Beauty'),
+('Sports'),
+('Jewelry'),
+('Accessories');
+
+-- code for product
+INSERT INTO `mydb`.`Product` (`ID`, `Quantity`, `Name`,
+`Price`, `Product_Category_id`) VALUES
+(1, 100, 'Smartphone', 500, 1),
+(2, 50, 'T-shirt', 20, 2),
+(3, 20, 'Novel', 10, 3),
+(4, 30, 'Sofa', 800, 4),
+(5, 40, 'Action Figure', 15, 5),
+(6, 60, 'Refrigerator', 12, 6),
+(7, 25, 'Lipstick', 30, 7),
+(8, 15, 'Football', 400, 8),
+(9, 35, 'Necklace', 50, 9),
+(10, 10, 'Watch', 100, 10);
+
+
+-- code for cart
 INSERT INTO `mydb`.`Cart` (`Quantity`, `Cart_Id`,
 `Product_ID`) VALUES
 (2, 1, 1),
@@ -13,7 +43,7 @@ INSERT INTO `mydb`.`Cart` (`Quantity`, `Cart_Id`,
 (2, 10, 10);
 
 
-// code for brand
+-- code for brand
 INSERT INTO `mydb`.`Brand` (`ID`, `Name`, `Pincode`)
 VALUES
 (1, 'Brand A', '11111'),
@@ -27,8 +57,23 @@ VALUES
 (9, 'Brand I', '99999'),
 (10, 'Brand J', '00000');
 
+-- code for subscription
+INSERT INTO `mydb`.`Subscription` (`ID`, `Price`,
+`Feature`, `Name`) VALUES
+(1, 10, 'Basic', 'Basic Subscription'),
+(2, 20, 'Premium', 'Premium Subscription'),
+(3, 30, 'Pro', 'Pro Subscription'),
+(4, 15, 'Standard', 'Standard Subscription'),
+(5, 25, 'Gold', 'Gold Subscription'),
+(6, 35, 'Enterprise', 'Enterprise Subscription'),
+(7, 12, 'Starter', 'Starter Subscription'),
+(8, 22, 'Silver', 'Silver Subscription'),
+(9, 40, 'Ultimate', 'Ultimate Subscription'),
+(10, 18, 'Plus', 'Plus Subscription');
 
-// code for customer
+
+
+-- code for customer
 -- Populate `Customer` table
 INSERT INTO `mydb`.`Customer` (`Phone_Number`,`User Password`,`Email`, `Sex`, `DOB`, `Name`, `Subscription_ID`, `Age`,`Cart_quantity`, `Cart_Id`) VALUES
 ('1234567890','haha1' ,'customer1@example.com', 'M',
@@ -53,38 +98,13 @@ INSERT INTO `mydb`.`Customer` (`Phone_Number`,`User Password`,`Email`, `Sex`, `D
 '1965-09-09', 'Sophia Brown', 10, '56', 2, 10);
 
 
-// code for product
-INSERT INTO `mydb`.`Product` (`ID`, `Quantity`, `Name`,
-`Price`, `Product Category_id`) VALUES
-(1, 100, 'Smartphone', 500, 1),
-(2, 50, 'T-shirt', 20, 2),
-(3, 20, 'Novel', 10, 3),
-(4, 30, 'Sofa', 800, 4),
-(5, 40, 'Action Figure', 15, 5),
-(6, 60, 'Refrigerator', 12, 6),
-(7, 25, 'Lipstick', 30, 7),
-(8, 15, 'Football', 400, 8),
-(9, 35, 'Necklace', 50, 9),
-(10, 10, 'Watch', 100, 10);
 
-// code for product category
--- Populate `Product Category` table
-INSERT INTO `mydb`.`product_category` (`Name`)
-VALUES
-('Electronics'),
-('Clothing'),
-('Books'),
-('Furniture'),
-('Toys'),
-('Home Appliances'),
-('Beauty'),
-('Sports'),
-('Jewelry'),
-('Accessories');
 
-// code for product category has brand
+
+
+-- code for product category has brand
 -- Populate `Product Category_has_Brand` table
-INSERT INTO `mydb`.`Product_category_has_Brand`
+INSERT INTO `mydb`.`Product_Category_has_Brand`
 (`Product_Category_id`, `Brand_ID`) VALUES
 (1, 1),
 (2, 2),
@@ -97,7 +117,7 @@ INSERT INTO `mydb`.`Product_category_has_Brand`
 (4, 5),
 (5, 1);
 
-// code for selects
+-- code for selects
 INSERT INTO `mydb`.`Selects` (`Customer_Phone_Number`, `Product_ID`) VALUES
 (1234567890, 1),
 (9876543210, 2),
@@ -110,16 +130,3 @@ INSERT INTO `mydb`.`Selects` (`Customer_Phone_Number`, `Product_ID`) VALUES
 (9012345678, 9),
 (4567890123, 10);
 
-// code for subscription
-INSERT INTO `mydb`.`Subscription` (`ID`, `Price`,
-`Feature`, `Name`) VALUES
-(1, 10, 'Basic', 'Basic Subscription'),
-(2, 20, 'Premium', 'Premium Subscription'),
-(3, 30, 'Pro', 'Pro Subscription'),
-(4, 15, 'Standard', 'Standard Subscription'),
-(5, 25, 'Gold', 'Gold Subscription'),
-(6, 35, 'Enterprise', 'Enterprise Subscription'),
-(7, 12, 'Starter', 'Starter Subscription'),
-(8, 22, 'Silver', 'Silver Subscription'),
-(9, 40, 'Ultimate', 'Ultimate Subscription'),
-(10, 18, 'Plus', 'Plus Subscription');

@@ -10,6 +10,7 @@ FOREIGN_KEY_CHECKS=0;
 -- -----------------------------------------------------
 -- Schema mydb
 -- -----------------------------------------------------
+DROP SCHEMA IF EXISTS `mydb`;
 CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET
 utf8 ;
 USE `mydb` ;
@@ -166,19 +167,19 @@ FOREIGN KEY (`Product_id`)
 REFERENCES `mydb`.`Product` (`ID`))
 engine=InnoDB;
 CREATE TABLE IF NOT EXISTS `mydb`.`Product_Category_has_Brand` (
-`Product Category_id` INT NOT NULL,
+`Product_Category_id` INT NOT NULL,
 `Brand_ID` INT NOT NULL,
-PRIMARY KEY (`Product Category_id`, `Brand_ID`),
-INDEX `fk_Product Category_has_Brand_Brand1_idx` (`Brand_ID` ASC)
+PRIMARY KEY (`Product_Category_id`, `Brand_ID`),
+INDEX `fk_Product_Category_has_Brand_Brand1_idx` (`Brand_ID` ASC)
 VISIBLE,
-INDEX `fk_Product Category_has_Brand_Product Category1_idx`
-(`Product Category_id` ASC) VISIBLE,
-CONSTRAINT `fk_Product Category_has_Brand_Product Category1`
-FOREIGN KEY (`Product Category_id`)
-REFERENCES `mydb`.`Product Category` (`id`)
+INDEX `fk_Product_Category_has_Brand_Product Category1_idx`
+(`Product_Category_id` ASC) VISIBLE,
+CONSTRAINT `fk_Product_Category_has_Brand_Product Category1`
+FOREIGN KEY (`Product_Category_id`)
+REFERENCES `mydb`.`Product_Category` (`id`)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION,
-CONSTRAINT `fk_Product Category_has_Brand_Brand1`
+CONSTRAINT `fk_Product_Category_has_Brand_Brand1`
 FOREIGN KEY (`Brand_ID`)
 REFERENCES `mydb`.`Brand` (`ID`)
 ON DELETE NO ACTION
