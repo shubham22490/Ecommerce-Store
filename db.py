@@ -5,7 +5,7 @@ MYSQL_HOST = 'localhost'
 MYSQL_USER = 'root'
 MYSQL_PASSWORD = 'your_password'
 MYSQL_DB = 'mydb'
-
+app = FastAPI()
 # show all different categories
 @app.get("/show_product_categories")
 def get_categories() -> list[dict]:
@@ -43,9 +43,33 @@ def get_product(product_id: int) -> dict:
 def get_user_details(username: str) -> dict:
 
     return
-
+@app.get("/show_cart/{username}")
 def get_cart(username: str) -> list[dict]:
-    return
+    my_cursor=conn.cursor()
+    table_name = 'cart'  
+    my_cursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}'")
+    column_names = my_cursor.fetchall()
+    column_names = [col[0] for col in column_names]
+    my_cursor.execute("SELECT * FROM customer WHERE Phone_Number=%s", (username,))
+
+    record=my_cursor.fetchall()
+    cart_id=-1
+    for i in record:
+    
+        cart_id=i[9]
+    if cart_id==-1:
+        return [-1]
+    my_cursor.execute("SELECT * FROM cart")
+    record_=my_cursor.fetchall()
+    l=[]
+    for i in record_:
+        if (i[1]==cart_id):
+            d={}
+            d[column_names[0]]=i[0]
+            d[column_names[2]]=i[2]
+            l.append(d)
+    conn.close()
+    return l
 
 def add_to_cart(username: str, product_id: int) -> bool:
     return
@@ -76,9 +100,28 @@ def validate_login(username: str, password: str) -> bool:
             if (i[1]==password):
                 return True
     return False
-
+def calculate_age(date_of_birth):
+    today = datetime.today()
+    dob = datetime.strptime(date_of_birth, '%Y-%m-%d')
+    age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+    return age
+    
+@app.post("/signup_user")
 def register_user(data: dict) -> bool:
+    conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
+    my_cursor=conn.cursor()
+    my_cursor.execute("SELECT * FROM customer")
+    record=my_cursor.fetchall()
+    for i in record:
+        if (i[0]==data['Phone Number']):
+            return False
+    age=calculate_age(data["DOB"])
+    query="INSERT INTO `mydb`.`Customer` (`Phone Number`,`User Password`,`Email`, `Sex`, `DOB`, `Name`, `Subscription_ID`, `Age`,`Cart_quantity`, `Cart_Id`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+    values=(data['phone_number'],data['password'],data['email'],data['sex'],data['DOB'],data['Name'],data['subscription_id'],age,data['cart_quantity'],data['cart_id'])
+    my_cursor.execute(query,values)
+    my_cursor.commit()
+    conn.close()
+    return True
 
-    return
 
 
