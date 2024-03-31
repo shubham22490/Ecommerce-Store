@@ -35,14 +35,45 @@ def get_categories() -> list[dict]:
 def get_products(category_id: int) -> list[dict]:
     # if category_id = -1, return all products.
     return
-
+@app.get("/show_product/{product_id}") 
 def get_product(product_id: int) -> dict:
+    conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
+    my_cursor=conn.cursor()
+    table_name='product'
+    my_cursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}'")
+    column_names = my_cursor.fetchall()
+    column_names = [col[0] for col in column_names]
+    query = "SELECT * FROM Product WHERE ID = %s"  # Use parameterized query to avoid SQL injection
+    my_cursor.execute(query, (product_id,)) 
+    record=my_cursor.fetchall()
+    l=[]
+    for i in record:
+        d={}
+        for j in range(len(column_names)):
+            d[column_names[j]]=i[j]
+        l.append(d)
+    conn.close()
+    return l
 
-    return
-
+@app.get("/user_detail/{username}")
 def get_user_details(username: str) -> dict:
+    conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
+    my_cursor=conn.cursor()
+    my_cursor.execute("SELECT * FROM customer WHERE PHONE_NUMBER=%s",(username,))
+    record=my_cursor.fetchall()
+    print(record)
+    table_name='customer'
 
-    return
+    my_cursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}'")
+    column_names = my_cursor.fetchall()
+    column_names = [col[0] for col in column_names]
+    d={}
+    print(column_names)
+    for  i in record:
+        for j in range(len(column_names)):
+            
+            d[column_names[j]]=i[j]
+    return d
 @app.get("/show_cart/{username}")
 def get_cart(username: str) -> list[dict]:
     my_cursor=conn.cursor()
