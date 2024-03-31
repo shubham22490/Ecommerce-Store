@@ -65,9 +65,17 @@ def get_order_history(username: str) -> list[dict]:
 def checkout(username: str, product_id: int) -> bool:
     return
 
+@app.get("/login")
 def validate_login(username: str, password: str) -> bool:
-
-    return
+    conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
+    my_cursor=conn.cursor()
+    my_cursor.execute("SELECT * FROM Customer")
+    record=my_cursor.fetchall()
+    for i in record:
+        if (i[0]==username):
+            if (i[1]==password):
+                return True
+    return False
 
 def register_user(data: dict) -> bool:
 
