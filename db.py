@@ -145,8 +145,16 @@ def call_for_trial(username: str, product_ids: list[int]) -> bool:
         conn.commit()
     return True
 
-def get_trial_history(username: str) -> list[dict]:
-    return
+def get_trial_history(username: str) -> list[]:
+    conn=mysql.connector.connect(host='localhost',username='root',password='Weebly#123',database='mydb')
+    my_cursor=conn.cursor()
+    my_cursor.execute("SELECT * FROM trial_history WHERE Phone_Number=%s",(username,))
+    record=my_cursor.fetchall()
+    l=[]
+    for i in record:
+        l.append(i)
+    conn.close()    
+    return l
 
 def search_product(prompt: str) -> list[dict]:
     return
