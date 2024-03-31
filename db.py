@@ -2,21 +2,20 @@ import mysql.connector
 from datetime import datetime
 MYSQL_HOST = 'localhost'
 MYSQL_USER = 'root'
-MYSQL_PASSWORD = 'your_password'
+MYSQL_PASSWORD = 'test'
 MYSQL_DB = 'mydb'
 
-
 def get_categories() -> list[dict]:
-    conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
-    my_cursor=conn.cursor()
+    conn = mysql.connector.connect(host=MYSQL_HOST, username=MYSQL_USER, password=MYSQL_PASSWORD, database=MYSQL_DB)
+    my_cursor = conn.cursor()
 
     # Fetch column names for the product_category table
-    table_name = 'product_category'  
+    table_name = 'Product_Category'  
     my_cursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}'")
     column_names = my_cursor.fetchall()
     column_names = [col[0] for col in column_names]
     # Fetch records from the product_category table
-    my_cursor.execute("SELECT * FROM product_category")
+    my_cursor.execute(f"SELECT * FROM {table_name}")
     records = my_cursor.fetchall()
     # Construct dictionary with column names as keys and record values as values
     result = []
@@ -126,7 +125,8 @@ def get_cart(username: str) -> list[dict]:
 
 def add_to_cart(username: str, product_id: int,quantity:int) -> bool:
     
-    conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)my_cursor=conn.cursor()
+    conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
+    my_cursor=conn.cursor()
     my_cursor.execute("SELECT * FROM customer WHERE PHONE_NUMBER=%s",(username,))
     cart_id=-1
     record=my_cursor.fetchall()
@@ -169,7 +169,7 @@ def call_for_trial(username: str, product_ids: list[int]) -> bool:
         conn.commit()
     return True
 
-def get_trial_history(username: str) -> list[]:
+def get_trial_history(username: str) -> list[dict]:
     conn=mysql.connector.connect(host='localhost',username='root',password='Weebly#123',database='mydb')
     my_cursor=conn.cursor()
     my_cursor.execute("SELECT * FROM trial_history WHERE Phone_Number=%s",(username,))

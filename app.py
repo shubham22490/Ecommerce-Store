@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import db
 
 app = Flask("Luxury Store")
+username = ""
 
 @app.route("/")
 def initialize():
@@ -25,7 +26,7 @@ def login():
     # Handle form submission (validate credentials and handle login)
     username = request.form['username']
     password = request.form['password']
-    if validate_login(username, password):  
+    if db.validate_login(username, password):  
       return home()
     else:
       return "Invalid username or password."
@@ -33,7 +34,7 @@ def login():
 
 @app.route('/home')
 def home():
-    categories = get_categories()
+    categories = db.get_categories()
     print(categories)
     return render_template('categories.html', categories=categories)
 

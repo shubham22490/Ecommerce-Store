@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>All Categories</title>
+  <style>
+    .category-block {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 10px;
+      border-radius: 5px;
+      text-align: center;
+      background-color: begin;
+    }
+    .category-block a {
+      color: inherit;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>All Categories</h1>
+  <div>
+    {% for category in categories %}
+      <a href="/category/{{ category.id }}">
+        <div class="category-block">
+          {{ category.Name }}
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</body>
+</html>
