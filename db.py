@@ -1,13 +1,11 @@
 import mysql.connector
 from datetime import datetime
-from fastapi import FASTAPI
 MYSQL_HOST = 'localhost'
 MYSQL_USER = 'root'
 MYSQL_PASSWORD = 'your_password'
 MYSQL_DB = 'mydb'
-app = FastAPI()
-# show all different categories
-@app.get("/show_product_categories")
+
+
 def get_categories() -> list[dict]:
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
@@ -31,7 +29,7 @@ def get_categories() -> list[dict]:
     conn.close()
     return result
 
-@app.get("/get_product/{category_id}")
+
 def get_products(category_id: int) -> list[dict]:
     # if category_id = -1, return all products.
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
@@ -57,7 +55,8 @@ def get_products(category_id: int) -> list[dict]:
                     d[column_names[j]]=i[j]
                 l.append(d)
     return l
-@app.get("/show_product/{product_id}") 
+
+
 def get_product(product_id: int) -> dict:
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
@@ -77,7 +76,7 @@ def get_product(product_id: int) -> dict:
     conn.close()
     return l
 
-@app.get("/user_detail/{username}")
+
 def get_user_details(username: str) -> dict:
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
@@ -96,7 +95,8 @@ def get_user_details(username: str) -> dict:
             
             d[column_names[j]]=i[j]
     return d
-@app.get("/show_cart/{username}")
+
+
 def get_cart(username: str) -> list[dict]:
     my_cursor=conn.cursor()
     table_name = 'cart'  
@@ -139,10 +139,10 @@ def search_product(prompt: str) -> list[dict]:
 def get_order_history(username: str) -> list[dict]:
     return
 
-def checkout(username: str, product_id: int) -> bool:
+def checkout(username: str) -> bool:
     return
 
-@app.get("/login")
+
 def validate_login(username: str, password: str) -> bool:
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
@@ -153,13 +153,14 @@ def validate_login(username: str, password: str) -> bool:
             if (i[1]==password):
                 return True
     return False
+
 def calculate_age(date_of_birth):
     today = datetime.today()
     dob = datetime.strptime(date_of_birth, '%Y-%m-%d')
     age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
     return age
     
-@app.post("/signup_user")
+
 def register_user(data: dict) -> bool:
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
