@@ -128,7 +128,22 @@ def add_to_cart(username: str, product_id: int,quantity:int) -> bool:
     return
 
 def call_for_trial(username: str, product_ids: list[int]) -> bool:
-    return
+    conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
+    my_cursor=conn.cursor()
+    my_cursor.execute("SELECT * FROM customer WHERE Phone_Number=%s",(username,))
+    record=my_cursor.fetchall()
+    cart_id=-1
+    for i in record:
+        cart_id=i[9]
+    if cart_id==-1:return False
+    my_cursor.execute("SELECT * FROM cart WHERE cart_id=%s",(cart_id,))
+    records=my_cursor.fetchall()
+    for i in records:
+        query="INSERT INTO trial_history(`PHONE_NUMBER`,`Product_Id`) VALUES (%s,%s)"
+        values=(username,i[2])
+        my_cursor.execute(query,values)
+        conn.commit()
+    return True
 
 def get_trial_history(username: str) -> list[dict]:
     return
