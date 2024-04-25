@@ -99,33 +99,26 @@ def get_user_details(username: str) -> dict:
 def get_cart(username: str) -> list[dict]:
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
-    table_name = 'Cart'  
+    table_name = 'Cart'
     my_cursor.execute(f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table_name}'")
     column_names = my_cursor.fetchall()
     column_names = [col[0] for col in column_names]
-    my_cursor.execute("SELECT * FROM Customer WHERE Phone_Number=%s", (username,))
-
-    record=my_cursor.fetchall()
-    cart_id=-1
-    for i in record:
-        cart_id=i[9]
-    if cart_id==-1:
-        return []
-    my_cursor.execute(f"SELECT * FROM Cart WHERE Cart_Id={cart_id}")
+    my_cursor.execute("SELECT * FROM Cart WHERE Phone_Number=%s", (username,))
     record_=my_cursor.fetchall()
     l=[]
     for i in record_:
-        if (i[1]==cart_id):
-            my_cursor.execute(f"SELECT Name, Price FROM Product WHERE Product.ID={i[2]}")
-            data = my_cursor.fetchall()[0]
-            name = data[0]
-            price = data[1]
-            d={}
-            d["Name"]=data[0]
-            d[column_names[0]]=i[0]
-            d['Price'] = price
-            l.append(d)
+        my_cursor.execute(f"SELECT Name, Price FROM Product WHERE Product.ID={i[3]}")
+        data = my_cursor.fetchall()[0]
+        name = data[0]
+        price = data[1]
+        d={}
+        d["product_id"]=i[3]
+        d["Name"] = name
+        d['Quantity']=i[2]
+        d['Price'] = price
+        l.append(d)
     conn.close()
+    print(l)
     return l
 
 def add_to_cart(username: str, product_id: int,quantity:int) -> bool:
@@ -133,27 +126,17 @@ def add_to_cart(username: str, product_id: int,quantity:int) -> bool:
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
     print(username)
-    my_cursor.execute("SELECT * FROM Customer WHERE Phone_Number=%s",(username,))
-    cart_id=-1
-    record=my_cursor.fetchall()
-    print(record)
-    for i in record:
-        cart_id=i[9]
-    if (cart_id==-1):return False
-    my_cursor.execute("SELECT * FROM Cart where Cart_Id=%s",(cart_id,))
+    my_cursor.execute("SELECT * FROM Cart WHERE Phone_Number=%s",(username,))
     records=my_cursor.fetchall()
     for i in records:
-        if (i[2] == product_id):
+        if (i[3] == product_id):
             my_cursor.execute("UPDATE Cart SET Quantity=Quantity+%s Where Product_ID=%s",(quantity,product_id,))
             return True
-
             
-    query="INSERT INTO Cart(`Quantity`,`Cart_Id`,`Product_ID`) VALUES (%s,%s,%s)"
-    values=(quantity,cart_id,product_id)
+    query="INSERT INTO Cart(`Phone_Number`,`Quantity`,`Product_ID`) VALUES (%s,%s,%s)"
+    values=(username, quantity, product_id)
     my_cursor.execute(query,values)
     conn.commit()
-    my_cursor.execute("SELECT * FROM Cart where Cart_Id=%s",(cart_id,))
-    records=my_cursor.fetchall()
     conn.close()
 
     return True
@@ -161,17 +144,11 @@ def add_to_cart(username: str, product_id: int,quantity:int) -> bool:
 def call_for_trial(username: str) -> bool:
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
-    my_cursor.execute("SELECT * FROM Customer WHERE Phone_Number=%s",(username,))
-    record=my_cursor.fetchall()
-    cart_id=-1
-    for i in record:
-        cart_id=i[9]
-    if cart_id==-1:return False
-    my_cursor.execute("SELECT * FROM Cart WHERE cart_id=%s",(cart_id,))
+    my_cursor.execute("SELECT * FROM Cart WHERE Phone_Number=%s",(username,))
     records=my_cursor.fetchall()
     for i in records:
         query="INSERT INTO trial_history(`PHONE_NUMBER`,`Product_Id`) VALUES (%s,%s)"
-        values=(username,i[2])
+        values=(username,i[3])
         my_cursor.execute(query,values)
         conn.commit()
     return True
@@ -196,10 +173,20 @@ def get_order_history(username: str) -> list[dict]:
     query = "SELECT * FROM order_history WHERE PHONE_NUMBER = %s"
     my_cursor.execute(query, (username,))
     order_history = my_cursor.fetchall()
+    resp=[]
+    for i in order_history:
+        my_cursor.execute("SELECT Name FROM Product WHERE ID=%s",(i[2],))
+        name=my_cursor.fetchall()[0][0]
+        d = {}
+        d['name'] = name
+        d['qty'] = i[3]
+        resp.append(d)
+
+
     my_cursor.close()
     conn.close()
-
-    return order_history
+    
+    return resp
 
 def checkout(username: str) -> bool:
     return
@@ -215,12 +202,6 @@ def validate_login(username: str, password: str) -> bool:
             if (i[1]==password):
                 return True
     return False
-
-def calculate_age(date_of_birth):
-    today = datetime.today()
-    dob = datetime.strptime(date_of_birth, '%Y-%m-%d')
-    age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-    return age
     
 
 def register_user(data: dict) -> bool:
@@ -232,52 +213,56 @@ def register_user(data: dict) -> bool:
         if (i[0]==data['Phone Number']):
             return False
     age=calculate_age(data["DOB"])
-    query="INSERT INTO `mydb`.`Customer` (`Phone Number`,`User Password`,`Email`, `Sex`, `DOB`, `Name`, `Subscription_ID`, `Age`,`Cart_quantity`, `Cart_Id`) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-    values=(data['phone_number'],data['password'],data['email'],data['sex'],data['DOB'],data['Name'],data['subscription_id'],age,data['cart_quantity'],data['cart_id'])
+    query="INSERT INTO `mydb`.`Customer` (`Phone Number`,`User Password`,`Email`, `Sex`, `DOB`, `Name`) VALUES (%s,%s,%s,%s,%s,%s)"
+    values=(data['phone_number'],data['password'],data['email'],data['sex'],data['DOB'],data['Name'])
     my_cursor.execute(query,values)
     conn.commit()
     conn.close()
     return True
 
-def delete_item_from_cart(cart_id, product_id):
+def delete_item_from_cart(username, product_id):
     # Establish a database connection
     conn = mysql.connector.connect(host=MYSQL_HOST, user=MYSQL_USER, password=MYSQL_PASSWORD, database=MYSQL_DB)
     cursor = conn.cursor()
 
-
-    try:
+    # try:
         # SQL statement to delete the specific item from the cart
-        query = "DELETE FROM Cart WHERE Cart_Id = %s AND Product_ID = %s"
-        values = (cart_id, product_id)
+    query = "DELETE FROM Cart WHERE Phone_Number = %s AND Product_ID = %s"
+    values = (username, product_id)
 
-        # Execute the query
-        cursor.execute(query, values)
+    # Execute the query
+    cursor.execute(query, values)
 
-        # Commit the changes to the database
-        conn.commit()
-        return True
-        
+    # Commit the changes to the database
+    conn.commit()
 
-    except mysql.connector.Error as e:
-        # Handle any SQL errors that occur during the process
-        return False
+    cursor.execute("SELECT * FROM Cart Where Phone_Number = %s", (username, ))
+    print(cursor.fetchall())
+    
+    return True
 
-    finally:
-        # Ensure the database cursor and connection are closed properly
-        cursor.close()
-        conn.close()
+    # except mysql.connector.Error as e:
+    #     print("Failed")
+    #     # Handle any SQL errors that occur during the process
+    #     return False
+
+    # finally:
+    #     # Ensure the database cursor and connection are closed properly
+    #     cursor.close()
+    #     conn.close()
 
 
-def buy_now(username:str,product:int) -> bool:
+def buy_now(username:str, product:int, qty: int) -> bool:
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
-    my_cursor.execute("SELECT Quantity from product where ID=%s",(product,))
+    my_cursor.execute("SELECT Quantity from Product where ID=%s",(product,))
     record=my_cursor.fetchall()
-    if (len(record)!=1 and record[0]<=0):return False
-    my_cursor.execute("UPDATE product SET Quantity=Quantity-1 WHERE ID=%s",(product,))
+    print(record[0][0])
+    if (len(record)!=1 or record[0][0]-qty < 0):return False
+    my_cursor.execute("UPDATE Product SET Quantity=Quantity-%s WHERE ID=%s",(qty, product))
     conn.commit()
-    query="INSERT INTO order_history(`Phone_Number`,`Product_ID`) VALUES (%s,%s)"
-    values=(username,product)
+    query="INSERT INTO order_history(`Phone_Number`,`Product_ID`, `Quantity`) VALUES (%s,%s,%s)"
+    values=(username, product, qty)
     my_cursor.execute(query,values)
     conn.commit()
     conn.close()

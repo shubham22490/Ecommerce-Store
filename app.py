@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session, redirect, url_for
 import db
 
 app = Flask("Luxury Store")
@@ -55,7 +55,7 @@ def product_details(product_id):
 
 @app.route('/add-to-cart', methods=['POST'])
 def add_to_cart():
-  quantity = request.form['quantity']
+  quantity = int(request.form['quantity'])
   product_id = int(request.form['product_id'])
   action = request.args.get('action')  # Access query parameter if present
   if(action == 'add'):
@@ -66,6 +66,15 @@ def add_to_cart():
   
   print(f"Adding {quantity} of product {product_id} to cart (action: {action})")
   return "Product added to cart (simulation)"
+
+@app.route('/buy', methods=['POST'])
+def buy_item():
+  id = int(request.form['product_id'])
+  qty = int(request.form['quantity'])
+  print(id, qty)
+  if db.buy_now(session['username'], id, qty):
+    return "SUCCESSFUL!"
+  return "Either you chose the qty greater than existing quantity or due to some internal error it fails."
 
 @app.route('/cart')
 def get_cart():
@@ -91,7 +100,7 @@ def get_trial():
     print(product_ids)
     products = []
     for i in product_ids:
-        
+
         temp = db.get_product(i)[0]
         print(temp)
         products.append(temp)
@@ -100,7 +109,8 @@ def get_trial():
 
 @app.route('/get-order-history')
 def get_order_history():
-    return db.get_order_history(session['username'])
+    orders = db.get_order_history(session['username'])
+    return render_template('order_history.html', orders = orders)
 
 @app.route('/delete-item', methods=['POST'])
 def delete_item():

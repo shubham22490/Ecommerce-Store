@@ -20,15 +20,17 @@
   <h1>Products</h1>
   <div class="product-list" style="margin: auto;">
     {% for product in products %}
-    <div style  = "width:20%">
-    <a href="/product/{{ product.ID }}">
-      <div class="product-item">
-        <h3>{{ product.Name }}</h3>
-        <p>Price: ${{ product.Price }}</p>
-        <p>Quantity: {{ product.Quantity }}</p>
-      </div>
-    </a>
-    </div>
+      {%if product.Quantity > 0%}
+        <div style  = "width:20%">
+        <a href="/product/{{ product.ID }}">
+          <div class="product-item">
+            <h3>{{ product.Name }}</h3>
+            <p>Price: ${{ product.Price }}</p>
+            <p>Quantity: {{ product.Quantity }}</p>
+          </div>
+        </a>
+        </div>
+      {% endif %}
     {% endfor %}
   </div>
 </body>

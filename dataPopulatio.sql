@@ -28,21 +28,6 @@ INSERT INTO `mydb`.`Product` (`ID`, `Quantity`, `Name`,
 (10, 10, 'Watch', 100, 10);
 
 
--- code for cart
-INSERT INTO `mydb`.`Cart` (`Quantity`, `Cart_Id`,
-`Product_ID`) VALUES
-(2, 1, 1),
-(3, 2, 2),
-(1, 3, 3),
-(4, 4, 4),
-(5, 5, 5),
-(2, 6, 6),
-(3, 7, 7),
-(1, 8, 8),
-(4, 9, 9),
-(2, 10, 10);
-
-
 -- code for brand
 INSERT INTO `mydb`.`Brand` (`ID`, `Name`, `Pincode`)
 VALUES
@@ -73,29 +58,28 @@ INSERT INTO `mydb`.`Subscription` (`ID`, `Price`,
 
 
 
--- code for customer
 -- Populate `Customer` table
-INSERT INTO `mydb`.`Customer` (`Phone_Number`,`User Password`,`Email`, `Sex`, `DOB`, `Name`, `Subscription_ID`, `Age`,`Cart_quantity`, `Cart_Id`) VALUES
+INSERT INTO `mydb`.`Customer` (`Phone_Number`,`User Password`,`Email`, `Sex`, `DOB`, `Name`, `Subscription_ID`, `Age`) VALUES
 ('1234567890','haha1' ,'customer1@example.com', 'M',
-'1990-01-01', 'John Doe', 1, '31', 2, 1),
+'1990-01-01', 'John Doe', 1, '31'),
 ('9876543210', 'haha2','customer2@example.com', 'F',
-'1995-05-05', 'Jane Smith', 2, '26', 3, 2),
+'1995-05-05', 'Jane Smith', 2, '26'),
 ('1112223334', 'haha3','customer3@example.com', 'M',
-'1985-12-12', 'Chris Johnson', 3, '36', 1, 3),
+'1985-12-12', 'Chris Johnson', 3, '36'),
 ('4445556667', 'haha4','customer4@example.com', 'F',
-'1988-08-08', 'Emma Brown', 4, '33', 4, 4),
+'1988-08-08', 'Emma Brown', 4, '33'),
 ('7778889991', 'haha5','customer5@example.com', 'M',
-'1992-02-02', 'Michael Wilson', 5, '29', 5, 5),
+'1992-02-02', 'Michael Wilson', 5, '29'),
 ('2345678901', 'haha6','customer6@example.com', 'F',
-'1993-03-03', 'Emily Taylor', 6, '28', 2, 6),
+'1993-03-03', 'Emily Taylor', 6, '28'),
 ('8901234567', 'haha7','customer7@example.com', 'M',
-'1980-04-04', 'David Martinez', 7, '41', 3, 7),
+'1980-04-04', 'David Martinez', 7, '41'),
 ('3456789012', 'haha8','customer8@example.com', 'F',
-'1975-07-07', 'Jessica Anderson', 8, '46', 1, 8),
+'1975-07-07', 'Jessica Anderson', 8, '46'),
 ('9012345678', 'haha9','customer9@example.com', 'M',
-'1970-06-06', 'Daniel Garcia', 9, '51', 4, 9),
+'1970-06-06', 'Daniel Garcia', 9, '51'),
 ('4567890123', 'haha10','customer10@example.com', 'F',
-'1965-09-09', 'Sophia Brown', 10, '56', 2, 10);
+'1965-09-09', 'Sophia Brown', 10, '56');
 
 
 

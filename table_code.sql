@@ -1,9 +1,3 @@
--- MySQL Workbench Forward Engineering
-SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS,
-UNIQUE_CHECKS=0;
-SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS,
-FOREIGN_KEY_CHECKS=0;
-
 -- -----------------------------------------------------
 -- Schema mydb
 -- -----------------------------------------------------
@@ -55,21 +49,6 @@ ON DELETE NO ACTION
 ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 -- -----------------------------------------------------
--- Table `mydb`.`Cart`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`Cart` (
-`Quantity` INT UNSIGNED NOT NULL,
-`Cart_Id` INT NOT NULL,
-`Product_ID` INT NOT NULL,
-PRIMARY KEY (`Cart_Id`, `Product_ID`),
-INDEX `fk_Cart_Product1_idx` (`Product_ID` ASC) VISIBLE,
-CONSTRAINT `fk_Cart_Product1`
-FOREIGN KEY (`Product_ID`)
-REFERENCES `mydb`.`Product` (`ID`)
-ON DELETE NO ACTION
-ON UPDATE NO ACTION)
-ENGINE = InnoDB;
--- -----------------------------------------------------
 -- Table `mydb`.`Customer`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `mydb`.`Customer` (
@@ -78,24 +57,30 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Customer` (
 `Email` VARCHAR(45) NOT NULL,
 `Sex` CHAR(1) BINARY NOT NULL,
 `DOB` DATE NOT NULL,
-`Name` VARCHAR(45) NULL,
-`Subscription_ID` INT NOT NULL,
-`Age` VARCHAR(45) NULL,
-`Cart_quantity` INT NOT NULL,
-`Cart_Id` INT NOT NULL,
-PRIMARY KEY (`Phone_Number`, `Cart_Id`),
+`Name` VARCHAR(45),
+`Subscription_ID` INT,
+`Age` VARCHAR(45),
+PRIMARY KEY (`Phone_Number`),
 INDEX `fk_Customer_Subscription1_idx` (`Subscription_ID` ASC) VISIBLE,
-INDEX `fk_Customer_Cart1_idx` (`Cart_Id` ASC) VISIBLE,
 CONSTRAINT `fk_Customer_Subscription1`
 FOREIGN KEY (`Subscription_ID`)
-REFERENCES `mydb`.`Subscription` (`ID`)
-ON DELETE NO ACTION
-ON UPDATE NO ACTION,
-CONSTRAINT `fk_Customer_Cart1`
-FOREIGN KEY (`Cart_Id`)
-REFERENCES `mydb`.`Cart` (`Cart_Id`)
-ON DELETE NO ACTION
-ON UPDATE NO ACTION)
+REFERENCES `mydb`.`Subscription` (`ID`));
+-- -----------------------------------------------------
+-- Table `mydb`.`Cart`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `mydb`.`Cart` (
+`Cart_Id` INT NOT NULL AUTO_INCREMENT,
+`Phone_Number` VARCHAR(10) NOT NULL,
+`Quantity` INT UNSIGNED NOT NULL,
+`Product_ID` INT NOT NULL,
+PRIMARY KEY (`Cart_Id`),
+INDEX `fk_Cart_Product1_idx` (`Product_ID` ASC) VISIBLE,
+CONSTRAINT `fk_Cart_Product1`
+    FOREIGN KEY (`Product_ID`)
+    REFERENCES `mydb`.`Product` (`ID`),
+CONSTRAINT `fk_Cart_Customer`
+    FOREIGN KEY (`Phone_Number`)
+    REFERENCES `mydb`.`Customer` (`Phone_Number`))
 ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `mydb`.`Address`
@@ -160,6 +145,7 @@ Create TABLE IF NOT EXISTS `mydb`.`order_history`(
 `ID` INT auto_increment,
 `PHONE_NUMBER` VARCHAR(12) NOT NULL,
 `Product_id` INT NOT NULL,
+`Quantity` INT NOT NULL,
 primary key(`ID`),
 FOREIGN KEY (`Phone_Number`)
 REFERENCES `mydb`.`Customer` (`Phone_Number`),
@@ -185,5 +171,3 @@ REFERENCES `mydb`.`Brand` (`ID`)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
-SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
