@@ -1,4 +1,5 @@
 import mysql.connector
+from mysql.connector import errorcode
 from datetime import datetime
 MYSQL_HOST = 'localhost'
 MYSQL_USER = 'root'
@@ -118,7 +119,6 @@ def get_cart(username: str) -> list[dict]:
         d['Price'] = price
         l.append(d)
     conn.close()
-    print(l)
     return l
 
 def add_to_cart(username: str, product_id: int,quantity:int) -> bool:
@@ -188,8 +188,43 @@ def get_order_history(username: str) -> list[dict]:
     
     return resp
 
-def checkout(username: str) -> bool:
-    return
+def checkout(username: str) -> str or list[str]:
+    conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
+    my_cursor=conn.cursor()
+    my_cursor.execute("SELECT * FROM Cart WHERE Phone_Number=%s",(username,))
+    records = my_cursor.fetchall()
+    flag = True
+    items = []
+    for i in records:
+        my_cursor.execute("SELECT Quantity, Name FROM Product WHERE ID=%s", (i[3],))
+        data = my_cursor.fetchall()[0]
+        available = data[0]; name = data[1]
+        if(available < i[2]):
+            items.append([name, available])
+            flag = False
+
+    if(flag):
+        resp = ""
+        try:
+            for i in records:
+                query="INSERT INTO order_history(`Phone_Number`,`Product_ID`, `Quantity`) VALUES (%s,%s,%s)"
+                values=(i[1], i[3], i[2])
+                my_cursor.execute(query,values)
+            resp = "SUCCESSFUL!!!"
+            my_cursor.execute("DELETE FROM Cart WHERE Phone_Number=%s", (username,))
+            print("Deleted from Cart for user:", username)
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_SIGNAL_EXCEPTION:
+                resp = "Error: Insufficient Stocks for the requested product."
+            else:
+                resp = "Internal SQL Error"
+        finally:
+            conn.commit()
+            conn.close()
+        return resp
+    conn.commit()
+    conn.close()
+    return items
 
 
 def validate_login(username: str, password: str) -> bool:
@@ -241,32 +276,25 @@ def delete_item_from_cart(username, product_id):
     
     return True
 
-    # except mysql.connector.Error as e:
-    #     print("Failed")
-    #     # Handle any SQL errors that occur during the process
-    #     return False
-
-    # finally:
-    #     # Ensure the database cursor and connection are closed properly
-    #     cursor.close()
-    #     conn.close()
-
 
 def buy_now(username:str, product:int, qty: int) -> bool:
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
-    my_cursor.execute("SELECT Quantity from Product where ID=%s",(product,))
-    record=my_cursor.fetchall()
-    print(record[0][0])
-    if (len(record)!=1 or record[0][0]-qty < 0):return False
-    my_cursor.execute("UPDATE Product SET Quantity=Quantity-%s WHERE ID=%s",(qty, product))
-    conn.commit()
     query="INSERT INTO order_history(`Phone_Number`,`Product_ID`, `Quantity`) VALUES (%s,%s,%s)"
     values=(username, product, qty)
-    my_cursor.execute(query,values)
-    conn.commit()
-    conn.close()
-    return True
+    result = ""
+    try:
+        my_cursor.execute(query,values)
+        result = "SUCCESSFUL!!!"
+    except mysql.connector.Error as err:
+        if err.errno == errorcode.ER_SIGNAL_EXCEPTION:
+            result = "Error: Insufficient Stocks for the requested product."
+        else:
+            result = "Internal SQL Error"
+    finally:
+        conn.commit()
+        conn.close()
+    return result
 
 
 

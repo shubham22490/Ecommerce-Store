@@ -72,22 +72,23 @@ def buy_item():
   id = int(request.form['product_id'])
   qty = int(request.form['quantity'])
   print(id, qty)
-  if db.buy_now(session['username'], id, qty):
-    return "SUCCESSFUL!"
-  return "Either you chose the qty greater than existing quantity or due to some internal error it fails."
+  return db.buy_now(session['username'], id, qty)
 
 @app.route('/cart')
 def get_cart():
     cart = db.get_cart(session['username'])
-    print(cart)
     total = sum([i["Price"] * i['Quantity'] for i  in cart])
-    print(total)
     return render_template('cart.html', cart=cart, total_price=total)
 
 @app.route('/checkout')
 def checkout():
-    # cart.clear()
-    return "Checkout successful (simulation)"
+    resp = db.checkout(session["username"])
+    if(type(resp) == str):
+      return resp
+    output = ""
+    for i in resp:
+      output += f"You chose {i[0]} greater than the available:{i[1]}"
+    return output
 
 @app.route('/call-for-trial')
 def call_for_trial():
