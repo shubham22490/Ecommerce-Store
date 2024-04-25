@@ -239,5 +239,49 @@ def register_user(data: dict) -> bool:
     conn.close()
     return True
 
+def delete_item_from_cart(cart_id, product_id):
+    # Establish a database connection
+    conn = mysql.connector.connect(host=MYSQL_HOST, user=MYSQL_USER, password=MYSQL_PASSWORD, database=MYSQL_DB)
+    cursor = conn.cursor()
+
+
+    try:
+        # SQL statement to delete the specific item from the cart
+        query = "DELETE FROM Cart WHERE Cart_Id = %s AND Product_ID = %s"
+        values = (cart_id, product_id)
+
+        # Execute the query
+        cursor.execute(query, values)
+
+        # Commit the changes to the database
+        conn.commit()
+        return True
+        
+
+    except mysql.connector.Error as e:
+        # Handle any SQL errors that occur during the process
+        return False
+
+    finally:
+        # Ensure the database cursor and connection are closed properly
+        cursor.close()
+        conn.close()
+
+
+def buy_now(username:str,product:int) -> bool:
+    conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
+    my_cursor=conn.cursor()
+    my_cursor.execute("SELECT Quantity from product where ID=%s",(product,))
+    record=my_cursor.fetchall()
+    if (len(record)!=1 and record[0]<=0):return False
+    my_cursor.execute("UPDATE product SET Quantity=Quantity-1 WHERE ID=%s",(product,))
+    conn.commit()
+    query="INSERT INTO order_history(`Phone_Number`,`Product_ID`) VALUES (%s,%s)"
+    values=(username,product)
+    my_cursor.execute(query,values)
+    conn.commit()
+    conn.close()
+    return True
+
 
 
