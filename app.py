@@ -23,7 +23,6 @@ def login():
   if request.method == 'GET':
     return render_template('login.html')
   elif request.method == 'POST':
-    # Handle form submission (validate credentials and handle login)
     username = request.form['username']
     password = request.form['password']
     if db.validate_login(username, password):
@@ -42,6 +41,7 @@ def home():
 @app.route('/category/<int:category_id>')
 def show_category_products(category_id):
     products = db.get_products(category_id)
+    print(category_id)
     print(products)
     return render_template('products.html', products = products)
 
@@ -55,8 +55,6 @@ def product_details(product_id):
 
 @app.route('/add-to-cart', methods=['POST'])
 def add_to_cart():
-  # Implement logic to add product to cart based on quantity and action parameter
-  # This example just prints the submitted data for demonstration
   quantity = request.form['quantity']
   product_id = int(request.form['product_id'])
   action = request.args.get('action')  # Access query parameter if present
@@ -71,10 +69,44 @@ def add_to_cart():
 
 @app.route('/cart')
 def get_cart():
-    return db.get_cart(session['username'])
+    cart = db.get_cart(session['username'])
+    print(cart)
+    total = sum([i["Price"] * i['Quantity'] for i  in cart])
+    print(total)
+    return render_template('cart.html', cart=cart, total_price=total)
 
+@app.route('/checkout')
+def checkout():
+    # cart.clear()
+    return "Checkout successful (simulation)"
 
+@app.route('/call-for-trial')
+def call_for_trial():
+    db.call_for_trial(session["username"])
+    return "Thank you for your interest! A representative will contact you soon (simulation)"
 
+@app.route('/get-trial')
+def get_trial():
+    product_ids = db.get_trial_history(session['username'])
+    print(product_ids)
+    products = []
+    for i in product_ids:
+        
+        temp = db.get_product(i)[0]
+        print(temp)
+        products.append(temp)
+    print(products)
+    return render_template('trial_history.html', trials=products)
+
+@app.route('/get-order-history')
+def get_order_history():
+    return db.get_order_history(session['username'])
+
+@app.route('/delete-item', methods=['POST'])
+def delete_item():
+    item_id = int(request.form['item_id'])
+    db.delete_item_from_cart(session['username'], item_id)
+    return redirect(url_for('get_cart'))
 
 
 

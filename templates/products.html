@@ -11,16 +11,16 @@
     .product-item {
       border: 1px solid #ddd;
       padding: 10px;
-      margin-bottom: 10px;
-      width: 30%;
+      margin: 10px;
       text-align: center;
     }
   </style>
 </head>
 <body>
   <h1>Products</h1>
-  <div class="product-list">
+  <div class="product-list" style="margin: auto;">
     {% for product in products %}
+    <div style  = "width:20%">
     <a href="/product/{{ product.ID }}">
       <div class="product-item">
         <h3>{{ product.Name }}</h3>
@@ -28,6 +28,7 @@
         <p>Quantity: {{ product.Quantity }}</p>
       </div>
     </a>
+    </div>
     {% endfor %}
   </div>
 </body>

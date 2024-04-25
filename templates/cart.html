@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Checkout</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f8f8;
+    }
+    h1 {
+      text-align: left;
+      font-size: 5rem;
+      font-family: serif;
+      margin:3rem 10%;
+    }
+    table {
+      width: 80%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background-color: #fff;
+      border-radius: 5px;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    tbody tr:hover {
+      background-color: #f2f2f2;
+    }
+    p {
+      text-align: right;
+      margin: 0px 10%;
+    }
+    .button{
+        display: flex;
+        justify-content: right;
+        margin: 20px 10%;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1rem;
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    a {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #555;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Checkout</h1>
+  {% if cart %}
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Action</th> <!-- Added -->
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart %}
+          <tr>
+            <td>{{ item.Name }}</td>
+            <td>${{ item.Price }}</td>
+            <td>{{ item.Quantity }}</td>
+            <td>
+              <form action="/delete-item" method="post">
+                <input type="hidden" name="item_id" value="{{ item.id }}">
+                <button type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p>Total: ${{ total_price }}</p>
+    <div class="button">
+        <form action="/checkout" method="get">
+            <button type="submit">Checkout</button>
+          </form>
+          <form action="/call-for-trial" method="get">
+              <button type="submit">Call for Trial</button>
+          </form>
+    </div>
+    
+    <!-- <a href="#" onclick="callForTrial()">Call for Trial</a>   -->
+    {% else %}
+    <p>Your cart is empty!</p>
+  {% endif %}
+</body>
+</html>

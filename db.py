@@ -40,7 +40,7 @@ def get_products(category_id: int) -> list[dict]:
     column_names = my_cursor.fetchall()
     column_names = [col[0] for col in column_names]
     l=[]
-    if (category_id==-1):
+    if (category_id==0):
         for i in records:
             d={}
             for j in range(len(column_names)):
@@ -108,18 +108,22 @@ def get_cart(username: str) -> list[dict]:
     record=my_cursor.fetchall()
     cart_id=-1
     for i in record:
-    
         cart_id=i[9]
     if cart_id==-1:
-        return [-1]
-    my_cursor.execute("SELECT * FROM Cart")
+        return []
+    my_cursor.execute(f"SELECT * FROM Cart WHERE Cart_Id={cart_id}")
     record_=my_cursor.fetchall()
     l=[]
     for i in record_:
         if (i[1]==cart_id):
+            my_cursor.execute(f"SELECT Name, Price FROM Product WHERE Product.ID={i[2]}")
+            data = my_cursor.fetchall()[0]
+            name = data[0]
+            price = data[1]
             d={}
+            d["Name"]=data[0]
             d[column_names[0]]=i[0]
-            d[column_names[2]]=i[2]
+            d['Price'] = price
             l.append(d)
     conn.close()
     return l
@@ -154,16 +158,16 @@ def add_to_cart(username: str, product_id: int,quantity:int) -> bool:
 
     return True
 
-def call_for_trial(username: str, product_ids: list[int]) -> bool:
+def call_for_trial(username: str) -> bool:
     conn=mysql.connector.connect(host=MYSQL_HOST,username=MYSQL_USER,password=MYSQL_PASSWORD,database=MYSQL_DB)
     my_cursor=conn.cursor()
-    my_cursor.execute("SELECT * FROM customer WHERE Phone_Number=%s",(username,))
+    my_cursor.execute("SELECT * FROM Customer WHERE Phone_Number=%s",(username,))
     record=my_cursor.fetchall()
     cart_id=-1
     for i in record:
         cart_id=i[9]
     if cart_id==-1:return False
-    my_cursor.execute("SELECT * FROM cart WHERE cart_id=%s",(cart_id,))
+    my_cursor.execute("SELECT * FROM Cart WHERE cart_id=%s",(cart_id,))
     records=my_cursor.fetchall()
     for i in records:
         query="INSERT INTO trial_history(`PHONE_NUMBER`,`Product_Id`) VALUES (%s,%s)"
@@ -179,7 +183,7 @@ def get_trial_history(username: str) -> list[dict]:
     record=my_cursor.fetchall()
     l=[]
     for i in record:
-        l.append(i)
+        l.append(i[2])
     conn.close()    
     return l
 
